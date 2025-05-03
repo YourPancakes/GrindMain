@@ -1,0 +1,140 @@
+﻿@page
+@model GrindSoft.Pages.SendMessageModel
+@{
+    ViewData["Title"] = "Send Discord Message";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - GrindSoft</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Send Discord Message</h2>
+
+        <form method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label for="ModeType" class="form-label">Mode</label>
+                <select class="form-select" id="ModeType" name="ModeType" required>
+                    <option value="1" @(Model.ModeType == 1 ? "selected" : "")>Mode 1 (Regular)</option>
+                    <option value="2" @(Model.ModeType == 2 ? "selected" : "")>Mode 2 (Target Bot Interaction)</option>
+                    <option value="3" @(Model.ModeType == 3 ? "selected" : "")>Mode 3 (Send and Delete Message)</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="AccessToken" class="form-label">Access Token</label>
+                <input type="text" class="form-control" id="AccessToken" name="AccessToken" value="@Model.AccessToken" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="UserAgent" class="form-label">User-Agent</label>
+                <input type="text" class="form-control" id="UserAgent" name="UserAgent" value="@Model.UserAgent" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="ServerId" class="form-label">Server ID</label>
+                <input type="text" class="form-control" id="ServerId" name="ServerId" value="@Model.ServerId" />
+            </div>
+
+            <div class="mb-3">
+                <label for="ChannelId" class="form-label">Channel ID</label>
+                <input type="text" class="form-control" id="ChannelId" name="ChannelId" value="@Model.ChannelId" required />
+            </div>
+
+            <div class="mb-3" id="targetBotField" style="display:none;">
+                <label for="TargetUserId" class="form-label">Target User Id</label>
+                <input type="text" class="form-control" id="TargetUserId" name="TargetUserId" value="@Model.TargetUserId" />
+            </div>
+
+            <div class="mb-3" id="promptField">
+                <label for="Prompt" class="form-label">Prompt</label>
+                <textarea class="form-control" id="Prompt" name="Prompt" rows="4" required>@Model.Prompt</textarea>
+            </div>
+
+            <div class="mb-3" id="messageField" style="display:none;">
+                <label for="Message" class="form-label">Message</label>
+                <textarea class="form-control" id="Message" name="Message" rows="4">@Model.Message</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="MessageCount" class="form-label">Number of Messages</label>
+                <input type="number" class="form-control" id="MessageCount" name="MessageCount" value="@Model.MessageCount" min="1" step="1" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="DelayBetweenMessages" class="form-label">Delay Between Messages (seconds)</label>
+                <input type="number" class="form-control" id="DelayBetweenMessages" name="DelayBetweenMessages" value="@Model.DelayBetweenMessages" min="1" step="1" required />
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Send</button>
+                <a href="/Analytics@($"?sessionId={Model.SessionId}")" target="_blank" class="btn btn-info">Analytics</a>
+            </div>
+
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.Response))
+        {
+            <div class="alert alert-info mt-4" role="alert">
+                @Model.Response
+            </div>
+        }
+    </div>
+
+    <!-- Bootstrap JS and dependencies (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function updateModeFields() {
+            const modeTypeSelect = document.getElementById('ModeType');
+            const targetBotField = document.getElementById('targetBotField');
+            const targetUserIdInput = document.getElementById('TargetUserId');
+            const promptField = document.getElementById('promptField');
+            const messageField = document.getElementById('messageField');
+            const promptInput = document.getElementById('Prompt');
+            const messageInput = document.getElementById('Message');
+
+            if (modeTypeSelect.value == '2') {
+                targetBotField.style.display = 'block';
+                targetUserIdInput.setAttribute('required', 'required');
+
+                promptField.style.display = 'block';
+                promptInput.setAttribute('required', 'required');
+
+                messageField.style.display = 'none';
+                messageInput.removeAttribute('required');
+            } else if (modeTypeSelect.value == '3') {
+                targetBotField.style.display = 'none';
+                targetUserIdInput.removeAttribute('required');
+
+                promptField.style.display = 'none';
+                promptInput.removeAttribute('required');
+
+                messageField.style.display = 'block';
+                messageInput.setAttribute('required', 'required');
+            } else {
+                targetBotField.style.display = 'none';
+                targetUserIdInput.removeAttribute('required');
+
+                promptField.style.display = 'block';
+                promptInput.setAttribute('required', 'required');
+
+                messageField.style.display = 'none';
+                messageInput.removeAttribute('required');
+            }
+        }
+
+        document.getElementById('ModeType').addEventListener('change', updateModeFields);
+
+        updateModeFields();
+    </script>
+</body>
+</html>
